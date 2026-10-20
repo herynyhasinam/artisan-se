@@ -10,7 +10,7 @@ datasource db {
 model Artisan {
   id              Int      @id @default(autoincrement())
   name            String
-  trade           String   // métier
+  trade           String   // métier (ex: soudeur, couturière)
   neighborhood    String   // quartier
   city            String
   phone           String
@@ -22,4 +22,19 @@ model Artisan {
 
   @@index([trade])
   @@index([neighborhood])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
