@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  url      = env("DATABASE_URL")
+  provider = "postgresql"
+}
+
+model Artisan {
+  id              Int      @id @default(autoincrement())
+  name            String
+  trade           String   // métier
+  neighborhood    String   // quartier
+  city            String
+  phone           String
+  description     String?
+  consent         Boolean  @default(false) // l'artisan est d'accord pour être publié
+  recommendations Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([trade])
+  @@index([neighborhood])
+}
