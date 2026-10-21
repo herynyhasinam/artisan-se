@@ -7,26 +7,10 @@ datasource db {
   provider = "postgresql"
 }
 
-model Artisan {
-  id              Int      @id @default(autoincrement())
-  name            String
-  trade           String   // métier (ex: soudeur, couturière)
-  neighborhood    String   // quartier
-  city            String
-  phone           String
-  description     String?
-  consent         Boolean  @default(false) // l'artisan est d'accord pour être publié
-  recommendations Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([trade])
-  @@index([neighborhood])
-}
-
 enum Role {
-  USER
-  ADMIN
+  USER     // cherche un artisan
+  ARTISAN  // a une fiche (créée à l'inscription)
+  // ADMIN sera ajouté en fin de projet (modération)
 }
 
 model User {
@@ -37,4 +21,26 @@ model User {
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  artisan      Artisan? // une seule fiche, uniquement pour les comptes ARTISAN
+}
+
+model Artisan {
+  id              Int      @id @default(autoincrement())
+  name            String
+  trade           String   // métier
+  neighborhood    String   // quartier
+  city            String
+  phone           String
+  description     String?
+  recommendations Int      @default(0)
+
+  userId          Int      @unique // un compte = une fiche
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([trade])
+  @@index([neighborhood])
 }

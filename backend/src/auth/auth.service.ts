@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { User } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -15,9 +15,37 @@ export class AuthService {
     if (await this.users.findByEmail(email)) {
       throw new ConflictException('Cet email est déjà utilisé');
     }
+
+    const role = dto.accountType === 'ARTISAN' ? Role.ARTISAN : Role.USER;
+    if (role === Role.ARTISAN && (await this.users.artisanPhoneExists(dto.phone!))) {
+      throw new ConflictException('Un artisan avec ce numéro existe déjà');
+    }
+
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.users.create({ name: dto.name, email, passwordHash });
-    return this.buildResponse(user);
+    try {
+      const user = await this.users.create({
+        name: dto.name,
+        email,
+        passwordHash,
+        role,
+        artisan:
+          role === Role.ARTISAN
+            ? {
+                trade: dto.trade!,
+                neighborhood: dto.neighborhood!,
+                city: dto.city!,
+                phone: dto.phone!,
+                description: dto.description,
+              }
+            : undefined,
+      });
+      return this.buildResponse(user);
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        throw new ConflictException('Email déjà utilisé');
+      }
+      throw e;
+    }
   }
 
   async login(dto: LoginDto) {

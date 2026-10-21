@@ -17,6 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: { sub: number }) {
     const user = await this.users.findById(payload.sub);
     if (!user) throw new UnauthorizedException();
+    // On ne renvoie jamais le hash du mot de passe
     const { passwordHash, ...safeUser } = user;
     return safeUser;
   }
