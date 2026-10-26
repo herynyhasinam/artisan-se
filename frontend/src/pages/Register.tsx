@@ -22,7 +22,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  if (user) return <Navigate to={user.role === 'ARTISAN' ? '/ma-fiche' : '/'} replace />;
+  if (user) return <Navigate to="/accueil" replace />;
 
   const isArtisan = accountType === 'ARTISAN';
 

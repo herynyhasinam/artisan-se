@@ -7,6 +7,7 @@ export interface Artisan {
   phone: string;
   description?: string | null;
   recommendations: number;
+  createdAt: string;
 }
 
 export interface ArtisanInput {
@@ -114,3 +115,24 @@ export const recommendArtisan = (id: number) =>
 export const fetchMyArtisan = () => request<MyArtisan>('/artisans/me');
 export const updateMyArtisan = (data: Partial<ArtisanInput>) =>
   request<MyArtisan>('/artisans/me', json('PATCH', data));
+
+// --- Profil ---
+export interface Profile {
+  id: number;
+  name: string;
+  email: string;
+  role: 'USER' | 'ARTISAN';
+  createdAt: string;
+  artisan: MyArtisan | null; // la fiche, pour les comptes ARTISAN
+}
+
+export interface UpdateProfileInput {
+  name?: string;
+  email?: string;
+  currentPassword?: string; // obligatoire si on change l'email
+}
+
+export const fetchProfile = () => request<Profile>('/users/me');
+export const updateProfile = (data: UpdateProfileInput) => request<Profile>('/users/me', json('PATCH', data));
+export const changePassword = (data: { currentPassword: string; newPassword: string }) =>
+  request<{ changed: boolean }>('/users/me/password', json('PATCH', data));
