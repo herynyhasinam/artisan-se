@@ -19,6 +19,7 @@ interface ArtisanData {
   description?: string;
 }
 
+// Le profil ne contient jamais le hash du mot de passe
 const PROFILE_SELECT = {
   id: true,
   name: true,
@@ -56,6 +57,7 @@ export class UsersService {
     return !!found;
   }
 
+  // Création du compte ET de la fiche en une seule opération (tout ou rien)
   create(data: {
     name: string;
     email: string;
@@ -72,6 +74,7 @@ export class UsersService {
     });
   }
 
+  // ---------- Profil ----------
   async getProfile(id: number) {
     const profile = await this.prisma.user.findUnique({ where: { id }, select: PROFILE_SELECT });
     if (!profile) throw new NotFoundException('Compte introuvable');
@@ -88,6 +91,7 @@ export class UsersService {
     if (dto.email !== undefined) {
       const email = dto.email.toLowerCase();
       if (email !== user.email) {
+        // Changer l'email demande le mot de passe actuel
         if (!(await bcrypt.compare(dto.currentPassword!, user.passwordHash))) {
           throw new ForbiddenException('Mot de passe actuel incorrect');
         }

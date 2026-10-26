@@ -23,7 +23,7 @@ export default function ArtisanCard({ artisan: a }: { artisan: Artisan }) {
       {error && <p role="alert" className="error">{error}</p>}
       <div className="row">
         <a className="btn btn-primary" href={`tel:${a.phone}`}>Appeler</a>
-        <button className="btn btn-ghost" onClick={recommend}>👍 Je recommande ({count})</button>
+        <button className="btn btn-ghost" onClick={recommend}> Je recommande ({count})</button>
       </div>
     </article>
   );
